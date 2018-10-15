@@ -1,12 +1,12 @@
 
    
 
-### Choosing the right sample size for A/B testing
-#### I wrote this markdown for a company that needed help determining the minimum number of test and control groups needed to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of test stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
+## Choosing the right sample size for A/B testing
+### I wrote this markdown for a company that needed help determining the minimum number of test and control groups needed to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of test stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
 
-##### Power is the probability of rejecting a null hypothesis when it is false. Therefore, we need to define what "false" means to us in the context of our problem. For this would be how much difference between the test and control group do we need to observe in order to reject the null hypothesis and conclude that the action worked?
+### Power is the probability of rejecting a null hypothesis when it is false. Therefore, we need to define what "false" means to us in the context of our problem. For this would be how much difference between the test and control group do we need to observe in order to reject the null hypothesis and conclude that the action worked?
 
-##### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
+### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
 1. Define the Null Hypothesis:
 - H0: Sales in test and control group are equal
 - H1: Sales in test and control group are different
