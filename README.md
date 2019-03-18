@@ -1,14 +1,23 @@
+---
+title: "Choosing a Sample Size - Power Analysis"
+author: "Dustin Rogers"
+date: "October 12, 2018"
+output:
+      html_document:
+        keep_md: true
+---
+
+
 
    
+### Choosing the right sample size for A/B testing
+#### This markdown shows the basics of sample size estimation. In this example I show how I helped a company determine the correct sample size to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
 
-## Choosing the right sample size for A/B testing
-### This markdown shows the basics of sample size estimation. In this example I show how I helped a company determine the correct sample size to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
+#### Performing power analysis and sample size estimation is an important aspect of setting up an experiment, because without these calculations, sample size may be too high or too low. If sample size is too low, the experiment will lack the precision to provide reliable answers to the questions it is investigating. If sample size is too large, time and resources will be wasted, often for minimal gain. 
 
-### Performing power analysis and sample size estimation is an important aspect of setting up an experiment, because without these calculations, sample size may be too high or too low. If sample size is too low, the experiment will lack the precision to provide reliable answers to the questions it is investigating. If sample size is too large, time and resources will be wasted, often for minimal gain. 
+#### Power is the probability of rejecting a null hypothesis when it is false i.e. not committing a type 2 error. Therefore, we need to define what "false" means to us in the context of our problem. In this example, the null hypothesis should be a one-sided test that profitability in the test groups is lower than profitability in the control groups. Therefore, "false" in this example would be the opposite, that profitability is higher in the test groups that have less SKU's.
 
-### Power is the probability of rejecting a null hypothesis when it is false i.e. not committing a type 2 error. Therefore, we need to define what "false" means to us in the context of our problem. In this example, the null hypothesis should be a one-sided test that profitability in the test groups is lower than profitability in the control groups. Therefore, "false" in this example would be the opposite, that profitability is higher in the test groups that have less SKU's.
-
-### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
+#### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
 1. Define the Null Hypothesis:
 - H0: Sales in the test groups and less than the control groups
 - H1: Sales in the test groups are higher than the control groups
@@ -28,7 +37,7 @@ For this problem, the detectable difference is the difference in profitablity be
 Below I will walk through the steps described with actual data:
 
 First, I want to do a cursery glance at the data to make sure it is structured correctly and looks reasonable.                                   
-1. I am mainly concerned with the Gross Margin and Sales columns. It appears that there is a least one row with zero sales. I will need to get rid of these.
+1. I am mainly concerned with the Gross Margin and Sales columns. It appears that there is a least one row with zero sales. I will need to get rid of these.  
 2. I don't see any null values. This is great.
 
 ```r
@@ -110,7 +119,7 @@ Next I take a look at how sales vary over the course of the year. The company th
 
 ```r
 ggplot(data=sales_raw)+
-  geom_boxplot(aes(x=factor(Fiscal.Month),y=Sales..))
+  geom_boxplot(aes(x=factor(Fiscal.Month),y=Gross.Margin..))
 ```
 
 ![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
@@ -128,12 +137,12 @@ In order to run the power analysis I need 4 pieces of information:
 ```r
 sales_stats<-sales_raw%>%
   group_by(factor(Fiscal.Month))%>%
-  summarise(std_dev = sd(Sales..))
+  summarise(std_dev = sd(Gross.Margin..))
 mean(sales_stats[sales_stats$`factor(Fiscal.Month)`%in%c(10,11,12),]$std_dev)
 ```
 
 ```
-## [1] 13254.41
+## [1] 4807.233
 ```
 
 
@@ -142,7 +151,7 @@ This code builds out a data frame that has two columns:
 2. The results of the power.t.test function i.e. the sample size required to detect with 80% power for each Detectable Difference level. 
 
 ```r
-sd1 <-  13254 # std dev of sales
+sd1 <-  4800 # std dev of sales
 b <- 0.8 # power 
 a <- 0.05 # significance level
 dd <- seq(from = 500, to = 15000, by = 50) # detectable differences
@@ -151,7 +160,7 @@ names(result) <- c("DD", "ni")
 for (i in 1:length(dd)) {
   result[i, "DD"] <- dd[i]
   number <- power.t.test(n=NULL, delta = dd[i], sd=sd1, sig.level=a, power=b,
-                         alternative = 'two.sided')  
+                         alternative = 'one.sided')  
   result[i, "ni"] <-number$n
 }
 ```
@@ -160,22 +169,14 @@ This plot shows the results of the power.t.test for each level of detectable dif
 
 ```r
 ggplot(data = result, aes(x = DD, y = ni)) +
-  geom_line() + ylab("n") + xlab("Detectable difference") + 
-  scale_x_continuous(labels = comma, breaks = seq(0,15000,2500))+
-  scale_y_continuous(labels = comma, breaks = seq(0,10000,1000))
+  geom_line() + ylab("Sample Size Needed") + xlab("Detectable difference in $") + 
+  scale_x_continuous(labels = comma, breaks = seq(0,15000,2500), limits = c(0,15000)) +
+  scale_y_continuous(labels = comma,breaks = seq(0,1000,50), limits = c(0,500))
 ```
 
 ![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
-```r
-ggplot(data = result, aes(x = DD, y = ni)) +
-  geom_line() + ylab("n") + xlab("Detectable difference") + 
-  scale_x_continuous(labels = comma, breaks = seq(0,10000,1000), limits = c(5000,10000)) +
-  scale_y_continuous(labels = comma,breaks = seq(0,100,10), limits = c(30,100))
-```
-
-![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
-
 
 
 ```
+
