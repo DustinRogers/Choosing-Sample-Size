@@ -2,15 +2,17 @@
    
 
 ## Choosing the right sample size for A/B testing
-### I wrote this markdown for a company that needed help determining the minimum number of test and control groups needed to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of test stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
+### This markdown shows the basics of sample size estimation. In this example I show how I helped a company determine the correct sample size to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
 
-### Power is the probability of rejecting a null hypothesis when it is false. Therefore, we need to define what "false" means to us in the context of our problem. For this would be how much difference between the test and control group do we need to observe in order to reject the null hypothesis and conclude that the action worked?
+### Performing power analysis and sample size estimation is an important aspect of setting up an experiment, because without these calculations, sample size may be too high or too low. If sample size is too low, the experiment will lack the precision to provide reliable answers to the questions it is investigating. If sample size is too large, time and resources will be wasted, often for minimal gain. 
+
+### Power is the probability of rejecting a null hypothesis when it is false i.e. not committing a type 2 error. Therefore, we need to define what "false" means to us in the context of our problem. In this example, the null hypothesis should be a one-sided test that profitability in the test groups is lower than profitability in the control groups. Therefore, "false" in this example would be the opposite, that profitability is higher in the test groups that have less SKU's.
 
 ### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
 1. Define the Null Hypothesis:
-- H0: Sales in test and control group are equal
-- H1: Sales in test and control group are different
-This is a two-sided hypothesis, since we are testing if the sales increased or decreased.
+- H0: Sales in the test groups and less than the control groups
+- H1: Sales in the test groups are higher than the control groups 
+This is a one-sided hypothesis, since we are only testing if the sales increased.
 
 2. Determining Power and Significance Level
 - Type 1 Error (False Positive): Rejecting the null hypothesis when is it actually true 
