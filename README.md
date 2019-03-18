@@ -11,7 +11,7 @@
 ### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
 1. Define the Null Hypothesis:
 - H0: Sales in the test groups and less than the control groups
-- H1: Sales in the test groups are higher than the control groups 
+- H1: Sales in the test groups are higher than the control groups
 This is a one-sided hypothesis, since we are only testing if the sales increased.
 
 2. Determining Power and Significance Level
@@ -23,12 +23,12 @@ The probability of committing a Type 2 error is called the power.
 - A typical requirement for the power is 80%. In other words, we will tolerate a 20% chance of a type 2 error (1 - power). The typical requirement for the significance level is 5%.
 
 3. Determining what a proper detectable difference should be
-For this problem, the detectable difference is the difference in sales between test and control stores that would be considered "significant". We cannot solve for the sample size without first specifying the level of impact we want to be able to detect with our test. The key is to define what "pay off" means for this study, which depends on what would be considered a success as well as the cost of running the study. Since I didn't have exact cost estimates that it would take to run this study I asked for a range and used this in my analysis. Using a range also allowed us to see exactly how the minimum sample size relates with a change in detectable differences. 
+For this problem, the detectable difference is the difference in profitablity between test and control stores that would be considered "significant". We cannot solve for the sample size without first specifying the level of impact we want to be able to detect with our test. The key is to define what "pay off" means for this study, which depends on what would be considered a success as well as the cost of running the study. Since I didn't have exact cost estimates that it would take to run this study I asked for a range and used this in my analysis. Using a range also allowed us to see exactly how the minimum sample size relates with a change in detectable differences. 
 
 Below I will walk through the steps described with actual data:
 
 First, I want to do a cursery glance at the data to make sure it is structured correctly and looks reasonable.                                   
-1. I am mainly concerned with the Sales column. It appears that there is a least one row with zero sales. I will need to get rid of these.
+1. I am mainly concerned with the Gross Margin and Sales columns. It appears that there is a least one row with zero sales. I will need to get rid of these.
 2. I don't see any null values. This is great.
 
 ```r
