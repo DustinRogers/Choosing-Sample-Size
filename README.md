@@ -166,5 +166,4 @@ ggplot(data = result, aes(x = DD, y = ni)) +
 
 
 [Return to my portfolio](https://dustinrogers.github.io/)
-```
 
