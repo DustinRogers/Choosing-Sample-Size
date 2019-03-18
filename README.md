@@ -165,6 +165,6 @@ ggplot(data = result, aes(x = DD, y = ni)) +
 ![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 
-
+[Return to my portfolio](https://dustinrogers.github.io/)
 ```
 
