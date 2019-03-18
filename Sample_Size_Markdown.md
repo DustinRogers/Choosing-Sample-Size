@@ -10,17 +10,18 @@ output:
 
 
    
-
 ### Choosing the right sample size for A/B testing
-#### I wrote this markdown for a company that needed help determining the minimum number of test and control groups needed to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of test stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
+#### This markdown shows the basics of sample size estimation. In this example I show how I helped a company determine the correct sample size to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
 
-##### Power is the probability of rejecting a null hypothesis when it is false. Therefore, we need to define what "false" means to us in the context of our problem. For this would be how much difference between the test and control group do we need to observe in order to reject the null hypothesis and conclude that the action worked?
+#### Performing power analysis and sample size estimation is an important aspect of setting up an experiment, because without these calculations, sample size may be too high or too low. If sample size is too low, the experiment will lack the precision to provide reliable answers to the questions it is investigating. If sample size is too large, time and resources will be wasted, often for minimal gain. 
 
-##### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
+#### Power is the probability of rejecting a null hypothesis when it is false i.e. not committing a type 2 error. Therefore, we need to define what "false" means to us in the context of our problem. In this example, the null hypothesis should be a one-sided test that profitability in the test groups is lower than profitability in the control groups. Therefore, "false" in this example would be the opposite, that profitability is higher in the test groups that have less SKU's.
+
+#### I was able to find a power analysis package in R that allows us to solve for the optimal sample size based on significance level, power, and detectable difference. Below I have outlined the steps used to determine these 3 parts of the equation.
 1. Define the Null Hypothesis:
-- H0: Sales in test and control group are equal
-- H1: Sales in test and control group are different
-This is a two-sided hypothesis, since we are testing if the sales increased or decreased.
+- H0: Sales in the test groups and less than the control groups
+- H1: Sales in the test groups are higher than the control groups
+This is a one-sided hypothesis, since we are only testing if the sales increased.
 
 2. Determining Power and Significance Level
 - Type 1 Error (False Positive): Rejecting the null hypothesis when is it actually true 
@@ -31,12 +32,12 @@ The probability of committing a Type 2 error is called the power.
 - A typical requirement for the power is 80%. In other words, we will tolerate a 20% chance of a type 2 error (1 - power). The typical requirement for the significance level is 5%.
 
 3. Determining what a proper detectable difference should be
-For this problem, the detectable difference is the difference in sales between test and control stores that would be considered "significant". We cannot solve for the sample size without first specifying the level of impact we want to be able to detect with our test. The key is to define what "pay off" means for this study, which depends on what would be considered a success as well as the cost of running the study. Since I didn't have exact cost estimates that it would take to run this study I asked for a range and used this in my analysis. Using a range also allowed us to see exactly how the minimum sample size relates with a change in detectable differences. 
+For this problem, the detectable difference is the difference in profitablity between test and control stores that would be considered "significant". We cannot solve for the sample size without first specifying the level of impact we want to be able to detect with our test. The key is to define what "pay off" means for this study, which depends on what would be considered a success as well as the cost of running the study. Since I didn't have exact cost estimates that it would take to run this study I asked for a range and used this in my analysis. Using a range also allowed us to see exactly how the minimum sample size relates with a change in detectable differences. 
 
 Below I will walk through the steps described with actual data:
 
 First, I want to do a cursery glance at the data to make sure it is structured correctly and looks reasonable.                                   
-1. I am mainly concerned with the Sales column. It appears that there is a least one row with zero sales. I will need to get rid of these.
+1. I am mainly concerned with the Gross Margin and Sales columns. It appears that there is a least one row with zero sales. I will need to get rid of these.  
 2. I don't see any null values. This is great.
 
 ```r
@@ -118,7 +119,7 @@ Next I take a look at how sales vary over the course of the year. The company th
 
 ```r
 ggplot(data=sales_raw)+
-  geom_boxplot(aes(x=factor(Fiscal.Month),y=Sales..))
+  geom_boxplot(aes(x=factor(Fiscal.Month),y=Gross.Margin..))
 ```
 
 ![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
@@ -136,12 +137,12 @@ In order to run the power analysis I need 4 pieces of information:
 ```r
 sales_stats<-sales_raw%>%
   group_by(factor(Fiscal.Month))%>%
-  summarise(std_dev = sd(Sales..))
+  summarise(std_dev = sd(Gross.Margin..))
 mean(sales_stats[sales_stats$`factor(Fiscal.Month)`%in%c(10,11,12),]$std_dev)
 ```
 
 ```
-## [1] 13254.41
+## [1] 4807.233
 ```
 
 
@@ -150,7 +151,7 @@ This code builds out a data frame that has two columns:
 2. The results of the power.t.test function i.e. the sample size required to detect with 80% power for each Detectable Difference level. 
 
 ```r
-sd1 <-  13254 # std dev of sales
+sd1 <-  4800 # std dev of sales
 b <- 0.8 # power 
 a <- 0.05 # significance level
 dd <- seq(from = 500, to = 15000, by = 50) # detectable differences
@@ -159,7 +160,7 @@ names(result) <- c("DD", "ni")
 for (i in 1:length(dd)) {
   result[i, "DD"] <- dd[i]
   number <- power.t.test(n=NULL, delta = dd[i], sd=sd1, sig.level=a, power=b,
-                         alternative = 'two.sided')  
+                         alternative = 'one.sided')  
   result[i, "ni"] <-number$n
 }
 ```
@@ -168,21 +169,12 @@ This plot shows the results of the power.t.test for each level of detectable dif
 
 ```r
 ggplot(data = result, aes(x = DD, y = ni)) +
-  geom_line() + ylab("n") + xlab("Detectable difference") + 
-  scale_x_continuous(labels = comma, breaks = seq(0,15000,2500))+
-  scale_y_continuous(labels = comma, breaks = seq(0,10000,1000))
+  geom_line() + ylab("Sample Size Needed") + xlab("Detectable difference in $") + 
+  scale_x_continuous(labels = comma, breaks = seq(0,15000,2500), limits = c(0,15000)) +
+  scale_y_continuous(labels = comma,breaks = seq(0,1000,50), limits = c(0,500))
 ```
 
 ![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
-
-```r
-ggplot(data = result, aes(x = DD, y = ni)) +
-  geom_line() + ylab("n") + xlab("Detectable difference") + 
-  scale_x_continuous(labels = comma, breaks = seq(0,10000,1000), limits = c(5000,10000)) +
-  scale_y_continuous(labels = comma,breaks = seq(0,100,10), limits = c(30,100))
-```
-
-![](Sample_Size_Markdown_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
 
 
 
