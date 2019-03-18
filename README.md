@@ -1,16 +1,4 @@
----
-title: "Choosing a Sample Size - Power Analysis"
-author: "Dustin Rogers"
-date: "October 12, 2018"
-output:
-      html_document:
-        keep_md: true
----
-
-
-
-   
-### Choosing the right sample size for A/B testing
+## Choosing the right sample size for A/B testing
 #### This markdown shows the basics of sample size estimation. In this example I show how I helped a company determine the correct sample size to test their hypothesis. The company was interested in determining whether removing a cohort of less desirable SKU's from a group of stores would decrease total profitability in those stores. To do this I used a technique called 'Power Analysis'.
 
 #### Performing power analysis and sample size estimation is an important aspect of setting up an experiment, because without these calculations, sample size may be too high or too low. If sample size is too low, the experiment will lack the precision to provide reliable answers to the questions it is investigating. If sample size is too large, time and resources will be wasted, often for minimal gain. 
