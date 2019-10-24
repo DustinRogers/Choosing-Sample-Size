@@ -4,7 +4,7 @@ classes: wide
 
 # Site Settings
 locale                   : "en-US"
-title                    : "How to choose test and control samples"
+title                    : "Choosing Correct Sample Size"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Dustin Rogers"
