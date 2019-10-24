@@ -1,6 +1,1 @@
----
-layout: single
-classes: wide
-minimal_mistakes_skin: "mint" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum" "sunrise"
----
-remote_theme: DustinRogers/minimal-mistakes
+remote_theme: DustinRogers/DustinRogers.github.io
